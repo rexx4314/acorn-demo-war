@@ -1,0 +1,18 @@
+# 이전에 빌드한 베이스 이미지 사용
+FROM rexx4314/rex-alpine-openjdk1u7-maven381-tomcat70109:1.0
+
+# Tomcat 기본 애플리케이션 삭제 (ROOT 디렉토리 제거)
+RUN rm -rf /opt/tomcat/webapps/ROOT
+
+# 로컬에 있는 WAR 파일을 Tomcat의 ROOT.war로 복사하여 루트 경로로 배포
+COPY target/demo.war /opt/tomcat/webapps/ROOT.war
+
+# Tomcat 실행 전 경로와 파일 확인
+RUN ls -al /opt/tomcat/webapps/
+
+# Tomcat 포트 개방
+EXPOSE 8080
+
+# Tomcat 실행
+CMD ["/opt/tomcat/bin/catalina.sh", "run"]
+

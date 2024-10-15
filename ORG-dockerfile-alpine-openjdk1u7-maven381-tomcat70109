@@ -1,0 +1,57 @@
+# 알파인 베이스 이미지 사용
+FROM alpine:latest
+
+# 기본 패키지 및 glibc 설치
+RUN apk add --no-cache \
+    bash \
+    curl \
+    tar \
+    wget \
+    git && \
+    wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub && \
+    wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.31-r0/glibc-2.31-r0.apk && \
+    apk add --force-overwrite glibc-2.31-r0.apk && \
+    rm glibc-2.31-r0.apk
+
+# 로컬에 미리 다운로드된 OpenJDK 7 파일 추가
+COPY openjdk-7u75-b13-linux-x64-18_dec_2014.tar.gz /tmp/
+
+# JDK 7 설치
+RUN tar -xzf /tmp/openjdk-7u75-b13-linux-x64-18_dec_2014.tar.gz -C /opt && \
+    ln -s /opt/java-se-7u75-ri /opt/jdk && \
+    rm /tmp/openjdk-7u75-b13-linux-x64-18_dec_2014.tar.gz
+
+# Java 환경 변수 설정
+ENV JAVA_HOME=/opt/jdk
+ENV PATH=$JAVA_HOME/bin:$PATH
+
+RUN echo "JAVA_HOME is set to $JAVA_HOME" && ls -l $JAVA_HOME/bin && ls -l $JAVA_HOME && java -version
+
+# Maven 3.8.1 다운로드 및 설치
+RUN curl -fsSL https://archive.apache.org/dist/maven/maven-3/3.8.1/binaries/apache-maven-3.8.1-bin.tar.gz -o /tmp/apache-maven-3.8.1-bin.tar.gz && \
+    tar -xzf /tmp/apache-maven-3.8.1-bin.tar.gz -C /opt && \
+    ln -s /opt/apache-maven-3.8.1 /opt/maven && \
+    rm /tmp/apache-maven-3.8.1-bin.tar.gz
+
+# Maven 환경 변수 설정
+ENV MAVEN_HOME=/opt/maven
+ENV PATH=$MAVEN_HOME/bin:$PATH
+
+# Tomcat 7.0.109 다운로드 및 설치
+RUN wget --no-check-certificate https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.109/bin/apache-tomcat-7.0.109.tar.gz && \
+    tar -xzf apache-tomcat-7.0.109.tar.gz -C /opt && \
+    ln -s /opt/apache-tomcat-7.0.109 /opt/tomcat && \
+    rm apache-tomcat-7.0.109.tar.gz
+
+# JDK와 Maven 파일 확인 및 버전 확인 (디버깅용)
+RUN echo "JAVA_HOME is set to $JAVA_HOME" && ls -l $JAVA_HOME/bin && ls -l $JAVA_HOME && java -version && mvn -version
+
+# Tomcat 포트 개방
+EXPOSE 8080
+
+# 작업 디렉토리 설정
+WORKDIR /app
+
+# Tomcat 실행
+CMD ["/opt/tomcat/bin/catalina.sh", "run"]
+
