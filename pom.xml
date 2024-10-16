@@ -237,7 +237,7 @@
 						<artifactId>maven-clean-plugin</artifactId>
 						<version>2.5</version>
 						<scope>system</scope>
-						<systemPath>${basedir}/lib/maven-clean-plugin-2.5.jar</systemPath>
+						<systemPath>${basedir}/repo/lib/maven-clean-plugin-2.5.jar</systemPath>
 					</dependency>
 				</dependencies>
 			</plugin>
