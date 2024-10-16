@@ -44,3 +44,5 @@ hs_err_pid*
 replay_pid*
 
 /.idea/
+# lib 폴더는 추적하지 않지만, 특정 JAR 파일은 추적
+!lib/maven-clean-plugin-2.5.jar
