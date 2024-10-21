@@ -10,7 +10,9 @@ RUN apk add --no-cache \
     curl \
     tar \
     wget \
-    git && \
+    git \
+    ca-certificates && \
+    update-ca-certificates && \
     wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub && \
     wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.31-r0/glibc-2.31-r0.apk && \
     apk add --force-overwrite glibc-2.31-r0.apk && \
@@ -31,6 +33,42 @@ RUN apk add --no-cache \
     rm apache-tomcat-7.0.109.tar.gz && \
     # 불필요한 캐시 삭제
     rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
+
+# Maven 설정 파일에 HTTP로 Maven Central 설정
+RUN mkdir -p /root/.m2 && \
+    echo '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" \
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" \
+            xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 \
+            http://maven.apache.org/xsd/settings-1.0.0.xsd"> \
+            <mirrors> \
+                <mirror> \
+                    <id>central-http</id> \
+                    <mirrorOf>central</mirrorOf> \
+                    <url>http://repo.maven.apache.org/maven2</url> \
+                    <blocked>false</blocked> \
+                </mirror> \
+            </mirrors> \
+            <profiles> \
+              <profile> \
+                <id>allow-http-repo</id> \
+                <repositories> \
+                  <repository> \
+                    <id>central</id> \
+                    <url>http://repo.maven.apache.org/maven2</url> \
+                    <releases> \
+                      <enabled>true</enabled> \
+                    </releases> \
+                    <snapshots> \
+                      <enabled>true</enabled> \
+                    </snapshots> \
+                  </repository> \
+                </repositories> \
+              </profile> \
+            </profiles> \
+            <activeProfiles> \
+              <activeProfile>allow-http-repo</activeProfile> \
+            </activeProfiles> \
+          </settings>' > /root/.m2/settings.xml
 
 # Java 환경 변수 설정
 ENV JAVA_HOME=/opt/jdk

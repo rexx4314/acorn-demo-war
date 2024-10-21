@@ -1,0 +1,26 @@
+# 베이스 이미지로 OpenJDK 7 사용
+FROM openjdk:7-jdk-alpine as build
+
+# 필요한 패키지 설치
+RUN apk update && apk add --no-cache curl tar bash wget
+
+# Tomcat 7.0.109 설치
+RUN wget --no-check-certificate https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.109/bin/apache-tomcat-7.0.109.tar.gz && \
+    tar -xzf apache-tomcat-7.0.109.tar.gz -C /opt && \
+    ln -s /opt/apache-tomcat-7.0.109 /opt/tomcat && \
+    rm apache-tomcat-7.0.109.tar.gz && \
+    rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
+
+# Java 환경 변수 설정
+ENV JAVA_HOME=/usr/lib/jvm/java-1.7-openjdk
+ENV PATH=$JAVA_HOME/bin:$PATH
+
+# Tomcat 포트 개방
+EXPOSE 8080
+
+# 작업 디렉토리 설정
+WORKDIR /usr/src/app
+
+# Tomcat 실행
+CMD ["/opt/tomcat/bin/catalina.sh", "run"]
+
