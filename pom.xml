@@ -64,7 +64,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>4.0.9.RELEASE</version>
+			<version>6.1.14</version>
 		</dependency>
 
 		<!-- JSP 및 서블릿 API 지원 -->
